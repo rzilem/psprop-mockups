@@ -741,16 +741,8 @@
       padding: 32px;
       position: relative;
       overflow: hidden;
-      transition: all var(--transition-base);
+      transition: box-shadow var(--transition-base), border-color var(--transition-base);
       cursor: default;
-      opacity: 0;
-      transform: translateY(40px);
-    }
-
-    .bento-card.revealed {
-      opacity: 1;
-      transform: translateY(0);
-      transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--transition-base), border-color var(--transition-base);
     }
 
     .bento-card:hover {
@@ -953,14 +945,6 @@
       border-radius: 24px;
       padding: clamp(32px, 5vw, 56px);
       text-align: center;
-      opacity: 0;
-      transform: translateY(30px);
-    }
-
-    .testimonial-card.revealed {
-      opacity: 1;
-      transform: translateY(0);
-      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .testimonial-stars {
@@ -1118,14 +1102,6 @@
       gap: 20px;
       padding: 24px 0;
       border-bottom: 1px solid var(--gray-100);
-      opacity: 0;
-      transform: translateX(40px);
-    }
-
-    .feature-item.revealed {
-      opacity: 1;
-      transform: translateX(0);
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .feature-item:last-child {
@@ -2115,7 +2091,7 @@
   <section class="why-us" id="why-us">
     <div class="container">
       <div class="why-us-grid">
-        <div class="why-us-image reveal-left" id="why-us-img">
+        <div class="why-us-image" id="why-us-img">
           <img src="img/neighborhood.png" alt="Beautiful tree-lined neighborhood street" loading="lazy">
           <div class="experience-badge">
             <div class="experience-badge-number">38</div>
@@ -2124,7 +2100,7 @@
         </div>
 
         <div class="why-us-features">
-          <div class="why-us-header reveal-right">
+          <div class="why-us-header">
             <div class="section-eyebrow">Why Choose Us</div>
             <h2 class="section-title">Built on Trust,<br>Driven by <span class="accent">Results</span></h2>
             <p class="section-desc">We are not a franchise or a startup. We are a locally owned firm with deep roots in Central Texas, committed to the communities we serve.</p>
@@ -2417,8 +2393,8 @@
         });
       }, observerOptions);
 
-      /* Observe all revealable elements */
-      var elements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .bento-card, .trust-item, .feature-item, .testimonial-card');
+      /* Observe only elements NOT handled by GSAP ScrollTrigger */
+      var elements = document.querySelectorAll('.trust-item');
       for (var i = 0; i < elements.length; i++) {
         revealObserver.observe(elements[i]);
       }
@@ -2444,11 +2420,11 @@
           /* Ease out cubic */
           var eased = 1 - Math.pow(1 - progress, 3);
           var currentVal = Math.floor(startVal + (target - startVal) * eased);
-          el.textContent = currentVal.toLocaleString();
+          el.textContent = format === 'year' ? currentVal.toString() : currentVal.toLocaleString();
           if (progress < 1) {
             requestAnimationFrame(update);
           } else {
-            el.textContent = target.toLocaleString();
+            el.textContent = format === 'year' ? target.toString() : target.toLocaleString();
           }
         }
         requestAnimationFrame(update);
@@ -2496,117 +2472,101 @@
        GSAP — SECTION HEADER ANIMATIONS
        ============================================================== */
     /* Services section header */
-    gsap.from('.services .section-header', {
-      y: 60,
-      opacity: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.services .section-header',
-        start: 'top 85%',
-        toggleActions: 'play none none none'
+    gsap.fromTo('.services .section-header',
+      { y: 60, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.services .section-header',
+          start: 'top 85%',
+          toggleActions: 'play none none none'
+        }
       }
-    });
+    );
 
     /* CTA elements */
     gsap.utils.toArray('.cta-content .reveal').forEach(function(el, i) {
-      gsap.from(el, {
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        delay: i * 0.15,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.cta-section',
-          start: 'top 70%',
-          toggleActions: 'play none none none'
+      gsap.fromTo(el,
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, delay: i * 0.15, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.cta-section',
+            start: 'top 70%',
+            toggleActions: 'play none none none'
+          }
         }
-      });
+      );
     });
 
     /* ==============================================================
        BENTO CARDS — GSAP STAGGER
        ============================================================== */
     gsap.utils.toArray('.bento-card').forEach(function(card, i) {
-      gsap.from(card, {
-        y: 60,
-        opacity: 0,
-        scale: 0.95,
-        duration: 0.7,
-        delay: i * 0.08,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 90%',
-          toggleActions: 'play none none none',
-          onEnter: function() { card.classList.add('revealed'); }
+      gsap.fromTo(card,
+        { y: 60, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.7, delay: i * 0.08, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
         }
-      });
+      );
     });
 
     /* ==============================================================
        FEATURE ITEMS — GSAP STAGGER
        ============================================================== */
     gsap.utils.toArray('.feature-item').forEach(function(item, i) {
-      gsap.from(item, {
-        x: 60,
-        opacity: 0,
-        duration: 0.6,
-        delay: i * 0.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: item,
-          start: 'top 90%',
-          toggleActions: 'play none none none',
-          onEnter: function() { item.classList.add('revealed'); }
+      gsap.fromTo(item,
+        { x: 60, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, delay: i * 0.1, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
         }
-      });
+      );
     });
 
     /* ==============================================================
        TESTIMONIAL CARD
        ============================================================== */
-    gsap.from('.testimonial-card', {
-      y: 50,
-      opacity: 0,
-      scale: 0.96,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.community-parallax',
-        start: 'top 60%',
-        toggleActions: 'play none none none',
-        onEnter: function() { document.querySelector('.testimonial-card').classList.add('revealed'); }
+    gsap.fromTo('.testimonial-card',
+      { y: 50, opacity: 0, scale: 0.96 },
+      { y: 0, opacity: 1, scale: 1, duration: 1, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.community-parallax',
+          start: 'top 60%',
+          toggleActions: 'play none none none'
+        }
       }
-    });
+    );
 
     /* ==============================================================
        WHY US IMAGE — REVEAL
        ============================================================== */
-    gsap.from('.why-us-image', {
-      x: -80,
-      opacity: 0,
-      duration: 0.9,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.why-us',
-        start: 'top 75%',
-        toggleActions: 'play none none none',
-        onEnter: function() { document.querySelector('.why-us-image').classList.add('revealed'); }
+    gsap.fromTo('.why-us-image',
+      { x: -80, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.why-us',
+          start: 'top 75%',
+          toggleActions: 'play none none none'
+        }
       }
-    });
+    );
 
-    gsap.from('.why-us-header', {
-      x: 60,
-      opacity: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: '.why-us',
-        start: 'top 75%',
-        toggleActions: 'play none none none'
+    gsap.fromTo('.why-us-header',
+      { x: 60, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.why-us',
+          start: 'top 75%',
+          toggleActions: 'play none none none'
+        }
       }
-    });
+    );
 
     /* ==============================================================
        EXPERIENCE BADGE — Subtle float
@@ -2622,14 +2582,10 @@
     /* ==============================================================
        HERO STATS — Slight pulse
        ============================================================== */
-    gsap.from('.hero-stat', {
-      y: 20,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.6,
-      ease: 'power3.out',
-      delay: 2.5
-    });
+    gsap.fromTo('.hero-stat',
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out', delay: 2.5 }
+    );
 
     /* ==============================================================
        SMOOTH SCROLL FOR ANCHOR LINKS
@@ -2701,7 +2657,7 @@
         motionEls[i].style.animation = 'none';
       }
 
-      var revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .bento-card, .trust-item, .feature-item, .testimonial-card');
+      var revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .bento-card, .trust-item, .feature-item, .testimonial-card, .why-us-image, .why-us-header, .hero-stat');
       for (var j = 0; j < revealEls.length; j++) {
         revealEls[j].classList.add('revealed');
         revealEls[j].style.opacity = '1';
